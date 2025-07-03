@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    restart: always
+    container_name: mysql-laundry
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laundry_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - lavanet
+
+  laundry-branch:
+    build: .
+    container_name: laundry-branch
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      - PORT=8080
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=laundry_db
+    networks:
+      - lavanet
+
+networks:
+  lavanet:
+    driver: bridge
